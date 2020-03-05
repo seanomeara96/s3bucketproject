@@ -27,11 +27,16 @@ app.post('/store',(req,res)=>{
             console.log(err)
         }
         if(data){
-            console.log('uploaded in', data.Location)
+            console.log('img can be found at', data.Location)
+            let toStore = {
+                "image":data.Location
+            }
+            imageDB.insertOne(toStore)
         }
     })
 })
 mongodb.connect(process.env.CONNECTIONSTRING,{ useUnifiedTopology: true }).then(()=>{
+    const imageDB = mongodb.collection("Images")
     console.log('connected')
     app.listen(port,()=>{
         console.log('app is running on ', port)
