@@ -29,7 +29,7 @@ app.post('/store',(req,res)=>{
         if(data){
             console.log('img can be found at', data.Location)
             let toStore = {
-                "image":data.Location
+                "imageLocation":data.Location
             }
             imageDB.insertOne(toStore)
         }
