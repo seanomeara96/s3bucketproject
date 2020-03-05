@@ -35,8 +35,9 @@ app.post('/store',(req,res)=>{
         }
     })
 })
-mongodb.connect(process.env.CONNECTIONSTRING,{ useUnifiedTopology: true }).then(()=>{
-    const imageDB = mongodb.collection("Images")
+mongodb.connect(process.env.CONNECTIONSTRING,{ useUnifiedTopology: true }).then((err, db)=>{
+    const db0 = db.db("Images")
+    const imageDB = db0.collection("Images")
     console.log('connected')
     app.listen(port,()=>{
         console.log('app is running on ', port)
