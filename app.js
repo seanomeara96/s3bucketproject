@@ -32,6 +32,7 @@ app.post('/store',(req,res)=>{
                 "imageLocation":data.Location
             }
             imageDB.insertOne(toStore)
+            res.render("thanks.html")
         }
     })
 })
