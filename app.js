@@ -1,9 +1,15 @@
 const express = require('express'),
 app = express(),
 dotenv = require('dotenv'),
-AWS = require('aws-sdk')
-dotenv.config()
-const mongodb = require('mongodb')
+AWS = require('aws-sdk'),
+path = require('path')
+dotenv.config(()=>{
+    console.log("configged")
+})
+const MongoClient = require('mongodb').MongoClient;
+const uri = process.env.CONNECTIONSTRING
+const client = new MongoClient(uri, { useUnifiedTopology: true, connectTimeoutMS:60000 });
+
 AWS.config.update({
     accessKeyId: process.env.AWSACCESSKEYID,
     secretAccessKey: process.env.AWSSECRETKEY
@@ -14,7 +20,10 @@ app.use(express.static('views'))
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.get('/',(req,res)=>{
-    res.render('index.html')
+    res.sendFile(path.join(__dirname+'/views/index.html'))
+})
+app.get('/thanks',(req,res)=>{
+    res.sendFile(path.join(__dirname+'/views/thanks.html'))
 })
 app.post('/store',(req,res)=>{
     let params = {
@@ -22,7 +31,7 @@ app.post('/store',(req,res)=>{
         Body: req.body.picture,
         Key: req.body.picture
     }
-    s3.upload(params,(err,data)=>{
+    s3.upload(params,async (err,data)=>{
         if(err){
             console.log(err)
         }
@@ -31,16 +40,17 @@ app.post('/store',(req,res)=>{
             let toStore = {
                 "imageLocation":data.Location
             }
-            imageDB.insertOne(toStore)
-            res.render("thanks.html")
+            await client.connect().then(async ()=>{
+                let collection = await client.db("Images").collection("Images")
+                collection.insertOne(toStore)
+                client.close()
+              }).catch(err => console.log(err))
+              
+            res.redirect('/thanks')
         }
     })
 })
-mongodb.connect(process.env.CONNECTIONSTRING,{ useUnifiedTopology: true }).then((err, db)=>{
-    const db0 = db.db("Images")
-    const imageDB = db0.collection("Images")
-    console.log('connected')
-    app.listen(port,()=>{
-        console.log('app is running on ', port)
-    })
-}).catch((err)=>{console.log(err)})
+
+app.listen(port,()=>{
+    console.log('app is running on ', port)
+}) 
