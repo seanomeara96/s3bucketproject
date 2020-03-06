@@ -25,6 +25,9 @@ app.get('/',(req,res)=>{
 app.get('/thanks',(req,res)=>{
     res.sendFile(path.join(__dirname+'/views/thanks.html'))
 })
+app.get('/sorry',(req,res)=>{
+    res.sendFile(path.join(__dirname+'/views/sorry.html'))
+})
 app.post('/store',(req,res)=>{
     let params = {
         Bucket: process.env.BUCKET,
@@ -34,6 +37,7 @@ app.post('/store',(req,res)=>{
     s3.upload(params,async (err,data)=>{
         if(err){
             console.log(err)
+            res.redirect('/sorry')
         }
         if(data){
             console.log('img can be found at', data.Location)
