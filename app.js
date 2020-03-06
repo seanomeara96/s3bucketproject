@@ -29,7 +29,7 @@ let upload = multer({
           acl: 'public-read'
     })
 })
-//'IMG_20190509_215112_053.jpg'
+
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname+'/views/index.html'))
 })
@@ -42,7 +42,7 @@ app.get('/sorry',(req,res)=>{
 
 
 app.post('/store',upload.single('picture'),async (req,res)=>{
-    console.log(req.file)
+    if(req.file){
     await client.connect().then(async ()=>{
         let collection = await client.db("Images").collection("Images")
         collection.insertOne({"imageLocation":req.file.location})
@@ -52,8 +52,17 @@ app.post('/store',upload.single('picture'),async (req,res)=>{
         .then(()=>{
             client.close()
         })
-    }).catch((err)=>{console.log(err)})
-    res.redirect('/thanks')
+        .then(()=>{
+            res.redirect('/thanks')
+        })
+    }).catch((err)=>{
+        console.log(err)
+        res.redirect('/sorry')
+    })}else{
+        console.log('error uploading file')
+        res.redirect('/sorry')
+    }
+    
 })
 
 
