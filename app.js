@@ -3,9 +3,7 @@ app = express(),
 dotenv = require('dotenv'),
 AWS = require('aws-sdk'),
 path = require('path')
-dotenv.config(()=>{
-    console.log("configged")
-})
+dotenv.config()
 const MongoClient = require('mongodb').MongoClient;
 const uri = process.env.CONNECTIONSTRING
 const client = new MongoClient(uri, { useUnifiedTopology: true, connectTimeoutMS:60000 });
