@@ -42,8 +42,10 @@ app.post('/store',(req,res)=>{
             }
             await client.connect().then(async ()=>{
                 let collection = await client.db("Images").collection("Images")
-                collection.insertOne(toStore)
-                client.close()
+                collection.insertOne(toStore).then((i)=>{
+                    console.log("stored in mongodb at imageLocation: ",i.ops[0].imageLocation)
+                    client.close()
+                })
               }).catch(err => console.log(err))
               
             res.redirect('/thanks')
